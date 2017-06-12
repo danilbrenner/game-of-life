@@ -41,8 +41,14 @@ let mouseMove offset (subj:Subject<int>) e =
     |> coordsToIndex
     |> subj.Next
     
+let test () =
+    printfn "Lolo"
+
 let init() =
     let canvas = document.getElementsByTagName_canvas().[0]
+    let button = document.getElementById("start-button")
+    button.onclick <- unbox(test)
+    
     canvas.width <- 995.
     canvas.height <- 800.
 
