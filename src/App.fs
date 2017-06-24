@@ -23,7 +23,7 @@ let coordsToIndex (x, y) =
 
 let drawUnverse (ctx:CanvasRenderingContext2D) (universe:bool array) =
     ctx.fillStyle <- !^"#009933"
-    ctx.fillRect (0., 0., 995., 800.)
+    ctx.fillRect (0., 0., 995., 600.)
     universe
     |> Array.iteri (fun i v -> 
         match v with
