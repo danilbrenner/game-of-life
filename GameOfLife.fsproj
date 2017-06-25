@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src/Observables.fs" />    
+    <Compile Include="src/Game.fs" />        
     <Compile Include="src/App.fs" />
   </ItemGroup>
   <ItemGroup>

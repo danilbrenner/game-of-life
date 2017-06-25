@@ -1,13 +1,14 @@
 module GameOfLife
 
 open Observables
+open Game
 
 open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.Browser
 
-let universe = [| false |]
+//let universe = [| false |]
 
 type Offset = { Top:float; Left:float }
 
@@ -23,7 +24,7 @@ let coordsToIndex (x, y) =
 
 let drawUnverse (ctx:CanvasRenderingContext2D) (universe:bool array) =
     ctx.fillStyle <- !^"#009933"
-    ctx.fillRect (0., 0., 995., 600.)
+    ctx.fillRect (0., 0., 995., 602.)
     universe
     |> Array.iteri (fun i v -> 
         match v with
@@ -40,23 +41,43 @@ let mouseMove offset (subj:Subject<int>) e =
     |> (fun ev -> ev.clientX - offset.Left, ev.clientY - offset.Top)
     |> coordsToIndex
     |> subj.Next
-    
-let test () =
-    printfn "Lolo"
 
 let init() =
     let canvas = document.getElementsByTagName_canvas().[0]
-    let button = document.getElementById("start-button")
-    button.onclick <- unbox(test)
+    let button = document.getElementById("step-button")
+    let startButton = document.getElementById("start-button")
+    
     
     canvas.width <- 995.
-    canvas.height <- 800.
+    canvas.height <- 602.
 
     let ctx = canvas.getContext_2d()
     let drawUni = drawUnverse ctx
     
+    let mutable universeArray = Array.zeroCreate<bool> 4047
     
-    let universeArray = Array.zeroCreate<bool> 4047
+    let stepIt () = 
+        universeArray <- step universeArray
+        drawUni universeArray
+        printfn "Step"
+
+    button.onclick <- unbox(stepIt)
+    
+    let mutable interval:float option = None
+    let mutable canChange = true
+
+    startButton.onclick <- unbox(fun () -> 
+        match interval with
+        | None -> 
+            interval <- Some (window.setInterval(stepIt, 200.))
+            startButton.innerHTML <- """<i class="fa fa-stop" aria-hidden="true"></i>"""
+            canChange <- false   
+        | Some i -> 
+            window.clearInterval(i)
+            interval <- None
+            startButton.innerHTML <- """<i class="fa fa-play" aria-hidden="true"></i>"""
+            canChange <- true            
+        )
     
     let subject = Subject<int>()
     let mv = mouseMove {Top = canvas.offsetTop; Left = canvas.offsetLeft } subject 
@@ -77,11 +98,12 @@ let init() =
         |> Observable.filter (fun i -> isMouseDown)        
         |> Observable.filter (fun i -> i <> curItem)
         |> Observable.subscribe (fun i -> 
-            curItem <- i
-            universeArray.[i] <- not universeArray.[i]
-            drawUni universeArray)
+            if canChange then
+                curItem <- i
+                universeArray.[i] <- not universeArray.[i]
+                drawUni universeArray)
     
-    drawUni universeArray    
+    drawUni universeArray
     printfn "Init completed."
     
 init()
