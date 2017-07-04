@@ -4,6 +4,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src/Observables.fs" />    
+    <Compile Include="src/Commons.fs" />        
+    <Compile Include="src/Canvas.fs" />        
     <Compile Include="src/Game.fs" />        
     <Compile Include="src/App.fs" />
   </ItemGroup>
