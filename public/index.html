@@ -39,12 +39,16 @@
     </nav>
     <div class="container">
       <div class="starter-template">
-          <div class="panel panel-default">
-            <div class="panel-body">
-              <div style="text-align: right;">
+          <div class="panel panel-default" style="min-width: 1000px;">
+            <div class="panel-body" style="display: flex; flex-direction: row; justify-content: space-between; align-items: stretch;">
+              <span style="text-align: left;">
+                <button id="clear-button" class="btn btn-danger">X</button>                
+              </span>
+              <span style="flex: 70%;"></span>
+              <span style="text-align: right;">
                 <button id="step-button" class="btn btn-success"><i class="fa fa-step-forward" aria-hidden="true"></i></button>
                 <button id="start-button" class="btn btn-success"><i class="fa fa-play" aria-hidden="true"></i></button>
-              </div>
+              </span>
             </div>
           </div>
           <canvas align="center" id="canvas" style="cursor: pointer;"></canvas>

@@ -15,11 +15,14 @@ type AppState(size) =
         universe <- uni
     member this.GetUniverse () =
         universe
-    
+    member this.ResetUniverse () =
+        universe <- Array.zeroCreate<bool> size
+        universe
     member this.SetInterval int =
         interval <- int
     member this.GetInterval () =
         interval
+        
 
 let setupButton id action =
     document.getElementById(id)
@@ -73,7 +76,10 @@ let init() =
     |> (fun i -> setupButton i (fun () -> toggleRun i state.SetInterval stepIt (state.GetInterval())))
     |> ignore
     
-    setupButton "save-button" stepIt
+    setupButton "clear-button" (fun () -> 
+        if state.GetInterval() = None then 
+            state.ResetUniverse ()
+            |> drawUniverseSubj.Next)
     |> ignore
 
 
