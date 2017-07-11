@@ -1,5 +1,10 @@
 module Commons
 
-let tee f x = 
-    f x |> ignore
+let tee action x = 
+    action x |> ignore
     x
+
+let switch someFun noFun =
+    function
+    | Some i -> someFun i
+    | None -> noFun ()

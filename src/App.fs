@@ -22,58 +22,58 @@ type AppState(size) =
         interval <- int
     member this.GetInterval () =
         interval
-        
 
 let setupButton id action =
     document.getElementById(id)
     |> tee (fun b -> b.onclick <- unbox(action))
 
-let toggleRun btnId callback stepIt =
+let toggleRun btnId =
     function
     | None -> 
-        document.getElementById(btnId).innerHTML <- """<i class="fa fa-stop" aria-hidden="true"></i>"""            
-        let interval = Some (window.setInterval(stepIt, 200.))
-        callback interval
+        document.getElementById(btnId).innerHTML <- """<i class="fa fa-play" aria-hidden="true"></i>"""            
     | Some i -> 
-        window.clearInterval(i)
-        document.getElementById(btnId).innerHTML <- """<i class="fa fa-play" aria-hidden="true"></i>"""
-        callback None 
+        document.getElementById(btnId).innerHTML <- """<i class="fa fa-stop" aria-hidden="true"></i>"""
+
+let changeUniverse (state:AppState) (drawUniSubj:Subject<bool array>) action =
+    state.GetUniverse()
+    |> action
+    |> tee state.SetUniverse
+    |> drawUniSubj.Next
 
 let init() =
     
     let state = AppState (4047)
     let canvas = document.getElementsByTagName_canvas().[0]
-
     let drawUniverseSubj = Subject<bool array>()
+    let stepIt () = changeUniverse state drawUniverseSubj step    
+
+    let togglePlay () =
+        state.GetInterval ()
+        |> switch
+            (fun i -> 
+                window.clearInterval(i)
+                None)
+            (fun () -> Some (window.setInterval(stepIt, 200.)))
+        |> tee (fun i -> toggleRun "start-button" i)
+        |> state.SetInterval
+        ()
 
     let toggleCellSubj = 
         document.getElementsByTagName_canvas().[0]
         |> setupCanvas { Height = 995.; Width = 602.; CellsInLine = 71 } drawUniverseSubj
     
     drawUniverseSubj.Next <| state.GetUniverse()
-
-    let toggleItem i =
-        state.GetUniverse()
-        |> Array.mapi (fun ix v -> if i = ix then (not v) else v)
-        |> tee state.SetUniverse
-        |> drawUniverseSubj.Next
     
     toggleCellSubj
     |> Observable.filter (fun i -> state.GetInterval() = None)
-    |> Observable.subscribe toggleItem
+    |> Observable.subscribe (fun i ->
+        changeUniverse state drawUniverseSubj <| Array.mapi (fun ix v -> if i = ix then (not v) else v))
     |> ignore
-    
-    let stepIt () = 
-        state.GetUniverse()
-        |> step 
-        |> tee drawUniverseSubj.Next
-        |> state.SetUniverse
-    
+            
     setupButton "step-button" stepIt
     |> ignore
 
-    "start-button"
-    |> (fun i -> setupButton i (fun () -> toggleRun i state.SetInterval stepIt (state.GetInterval())))
+    setupButton "start-button" togglePlay
     |> ignore
     
     setupButton "clear-button" (fun () -> 
@@ -81,7 +81,6 @@ let init() =
             state.ResetUniverse ()
             |> drawUniverseSubj.Next)
     |> ignore
-
 
     printfn "Init completed. Now"
     
