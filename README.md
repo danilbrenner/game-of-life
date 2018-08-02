@@ -3,7 +3,6 @@
 My simple implementation of Conway's game of life using f# and fable compiler.
 
 * You can read about Conway's game of life on [Wikipedia](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
-* Or paly this game [here.](http://gol.codingape.net/)
 
 ## Build and running the app
 
