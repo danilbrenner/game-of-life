@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <WarningsAsErrors>0025</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Pages\Home.fs" />
@@ -13,5 +14,23 @@
     <PackageReference Include="Bolero.Build" Version="0.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.*" />
     <PackageReference Include="System.Net.Http.Json" Version="7.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\Templates\about.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\Templates\home.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\main.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\css\index.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\pages\info.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
