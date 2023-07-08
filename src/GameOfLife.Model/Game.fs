@@ -1,7 +1,10 @@
 namespace GameOfLife.Model
 
 module Game =
-    type Universe = Set<uint>
+    type Universe = {
+        generations: int
+        cells: Set<uint>
+    }
 
     let private areValid x y =
         x >= 0 && x <= 65535 && y >= 0 && y <= 65535
@@ -15,10 +18,18 @@ module Game =
     let toCoords (n: uint) =
         n >>> 16 |> int, (n <<< 16) >>> 16 |> int
 
-    let isCellAlive x y (universe: Universe) =
+    let private isAlive x y cells =
         fromCoords x y
-        |> Option.map (flip Set.contains universe)
+        |> Option.map (flip Set.contains cells)
         |> Option.defaultWith (fun _ -> false)
+
+    let isCellAlive x y ({ cells = cells }: Universe) = isAlive x y cells
+
+    let toggleCell (universe: Universe) x y =
+        match fromCoords x y with
+        | Some ix when Set.contains ix universe.cells -> { universe with cells = Set.remove ix universe.cells }
+        | Some ix -> { universe with cells = Set.add ix universe.cells }
+        | None -> universe
 
     type private Neighbour =
         | Alive of int * int
@@ -34,10 +45,10 @@ module Game =
         | Alive(x, y) -> Some(x, y)
         | _ -> None
 
-    let private getAt universe (x, y) =
-        if isCellAlive x y universe then Alive(x, y) else Dead(x, y)
+    let private getAt cells (x, y) =
+        if isAlive x y cells then Alive(x, y) else Dead(x, y)
 
-    let private getNeighbours universe x y =
+    let private getNeighbours cells x y =
         [
             x - 1, y - 1
             x - 1, y
@@ -49,20 +60,20 @@ module Game =
             x + 1, y + 1
         ]
         |> List.filter (fun (x, y) -> areValid x y)
-        |> List.map (getAt universe)
+        |> List.map (getAt cells)
 
     let step (universe: Universe) : Universe =
 
-        let newbornsFolder (acc: Universe) (x, y) =
+        let newbornsFolder acc (x, y) =
             let aliveCount =
-                getNeighbours universe x y |> List.choose unwrapAlive |> List.length
+                getNeighbours universe.cells x y |> List.choose unwrapAlive |> List.length
 
             match aliveCount, fromCoords x y with
             | 3, Some itm -> Set.add itm acc
             | _ -> acc
 
-        let rec folder (acc: Universe) (x, y) =
-            let neighbours = getNeighbours universe x y
+        let rec folder (acc: Set<uint>) (x, y) =
+            let neighbours = getNeighbours universe.cells x y
 
             let aliveCount = neighbours |> List.choose unwrapAlive |> List.length
 
@@ -72,4 +83,8 @@ module Game =
             | false, Some itm -> Set.add itm acc |> Set.union newborns
             | _ -> acc |> Set.union newborns
 
-        universe |> Set.toList |> List.map toCoords |> List.fold folder Set.empty
+        {
+            universe with
+                cells = universe.cells |> Set.toList |> List.map toCoords |> List.fold folder Set.empty
+                generations = universe.generations + 1
+        }

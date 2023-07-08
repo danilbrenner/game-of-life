@@ -14,12 +14,24 @@ module IsAliveTests =
                 Expect.isFalse result "Should return false"
 
             testPropertyWithConfig coordinatesConfig "When requested cell is alive"
-            <| fun universe ->
-                let result = universe |> Set.add 327690u |> isCellAlive 5 10
+            <| fun cells ->
+                let result =
+                    {
+                        cells = cells |> Set.add 327690u
+                        generations = 0
+                    }
+                    |> isCellAlive 5 10
+
                 Expect.isTrue result "Should return true"
 
             testPropertyWithConfig coordinatesConfig "When requested cell is dead"
             <| fun universe ->
-                let result = universe |> Set.remove 327690u |> isCellAlive 5 10
+                let result =
+                    {
+                        cells = universe |> Set.remove 327690u
+                        generations = 0
+                    }
+                    |> isCellAlive 5 10
+
                 Expect.isFalse result "Should return false"
         ]
