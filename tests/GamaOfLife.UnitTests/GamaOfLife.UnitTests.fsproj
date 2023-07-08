@@ -3,9 +3,14 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
+        <WarningsAsErrors>0025</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="CoordinatesGen.fs" />
+        <Compile Include="StepTests.fs" />
+        <Compile Include="CoordinatesTests.fs" />
+        <Compile Include="IsAliveTests.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

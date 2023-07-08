@@ -3,10 +3,12 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <WarningsAsErrors>0025</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Library.fs"/>
+        <Compile Include="Commons.fs" />
+        <Compile Include="Game.fs" />
     </ItemGroup>
 
 </Project>
