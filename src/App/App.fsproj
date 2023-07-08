@@ -1,9 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>GameOfLife</RootNamespace>
+    <WarningsAsErrors>0025</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Components\" />
+    <Compile Include="Components\Universe.fs" />
+    <Compile Include="Components\Stats.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

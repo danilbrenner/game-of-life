@@ -6,6 +6,11 @@ module Game =
         cells: Set<uint>
     }
 
+    let defaultUniverse = {
+        generations = 0
+        cells = Set.empty
+    }
+
     let private areValid x y =
         x >= 0 && x <= 65535 && y >= 0 && y <= 65535
 

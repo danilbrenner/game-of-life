@@ -4,40 +4,74 @@ open Elmish
 open Elmish.React
 open Elmish.Debug
 open Feliz
-open GameOfLife.Model
+open GameOfLife.Components
+open GameOfLife.Model.Game
+
+open Browser
+
+type GameMode =
+    | Playing
+    | Editing
 
 type State = {
-    scale: float
-    position: int * int
-    ix: int
+    mode: GameMode
+    universe: Universe
 }
 
 type Msg =
-    | Noop
-    | Add
+    | OnCellClicked of int * int
+    | ToggleGameMode
+    | Step
 
 let init () =
     {
-        scale = 1.0
-        position = (0, 0)
-        ix = 0
+        mode = Editing
+        universe = defaultUniverse
     },
     Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | Add -> { state with ix = state.ix + 1 }, Cmd.none
-    | Noop -> state, Cmd.none
+    | OnCellClicked(x, y) when state.mode = Editing -> { state with universe = toggleCell state.universe x y }, Cmd.none
+    | OnCellClicked _ -> state, Cmd.none
+    | ToggleGameMode when state.mode = Editing -> { state with mode = Playing }, Cmd.ofMsg Step
+    | ToggleGameMode _ -> { state with mode = Editing }, Cmd.none
+    | Step when state.mode = Playing ->
+        { state with universe = step state.universe }, Cmd.OfAsync.perform (fun _ -> Async.Sleep 300) () (fun _ -> Step)
+    | Step -> state, Cmd.none
+
 
 let render (state: State) (dispatch: Msg -> unit) =
-    let text = Say.hello "UserName!!!!"
-
     Html.div [
-        prop.children [
-            Html.div [ prop.text text ]
-            Html.div [
-                prop.onClick (fun _ -> dispatch Add)
-                prop.text $"Click me {state.ix}"
+        Html.div [
+            prop.classes [ "container" ]
+            prop.children [
+                Html.div [
+                    prop.classes [ "side-bar" ]
+                    prop.children [
+                        Stats.render state.universe
+                    ]
+                ]
+                Universe.render (OnCellClicked >> dispatch) state.universe
+            ]
+        ]
+        Html.div [
+            prop.classes [ "game-controls" ]
+            prop.children [
+                Html.button [
+                    prop.classes [ "btn"; "round" ]
+                    prop.children [
+                        (if state.mode = Playing then
+                             Html.i [
+                                 prop.classes [ "fa-solid"; "fa-stop" ]
+                             ]
+                         else
+                             Html.i [
+                                 prop.classes [ "fa-solid"; "fa-play" ]
+                             ])
+                    ]
+                    prop.onClick (fun _ -> dispatch ToggleGameMode)
+                ]
             ]
         ]
     ]
