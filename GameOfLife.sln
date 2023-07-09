@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		package-lock.json = package-lock.json
 		package.json = package.json
 		README.md = README.md
+		build-deploy.yml = .github/workflows/build-deploy.yml
+		test.yml = .github/workflows/test.yml
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GameOfLife.Model", "src\GameOfLife.Model\GameOfLife.Model.fsproj", "{BBC0B62B-54C0-4AD8-AE28-02DF30B192AE}"
