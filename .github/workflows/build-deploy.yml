@@ -1,0 +1,41 @@
+name: Build and Publish website
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore && npm install
+
+      - name: Build website
+        run: npm run build
+
+      - name: Install Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload to blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --overwrite --destination '$web' --source public/ --account-name ${{ secrets.BLOB_STORAGE_ACCOUNT }}
+      
+      - name: logout
+        run: |
+          az logout
+        if: always()
