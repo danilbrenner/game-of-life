@@ -65,7 +65,6 @@ body {
 
 .card.side-element {
     padding: 20px;
-    height: 120px;
     width: 300px;
 }
 
@@ -125,7 +124,15 @@ body {
     pointer-events: none;
 }
 
-.dbg {
-    border: #ff0000 solid 1px;
-    
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.pointer {
+    cursor: pointer;
 }

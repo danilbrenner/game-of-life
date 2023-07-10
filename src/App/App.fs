@@ -16,17 +16,20 @@ type GameMode =
 type State = {
     mode: GameMode
     universe: Universe
+    userSettingsState: UserSettings.State
 }
 
 type Msg =
     | OnCellClicked of int * int
     | ToggleGameMode
     | Step
+    | UserSettingsMsg of UserSettings.Msg
 
 let init () =
     {
         mode = Editing
         universe = defaultUniverse
+        userSettingsState = UserSettings.init
     },
     Cmd.none
 
@@ -39,6 +42,9 @@ let update (msg: Msg) (state: State) =
     | Step when state.mode = Playing ->
         { state with universe = step state.universe }, Cmd.OfAsync.perform (fun _ -> Async.Sleep 300) () (fun _ -> Step)
     | Step -> state, Cmd.none
+    | UserSettingsMsg subMsg ->
+        let state', cmd = UserSettings.update subMsg state.userSettingsState
+        { state with userSettingsState = state' }, cmd
 
 
 let render (state: State) (dispatch: Msg -> unit) =
@@ -49,6 +55,7 @@ let render (state: State) (dispatch: Msg -> unit) =
                 Html.div [
                     prop.classes [ "side-bar" ]
                     prop.children [
+                        UserSettings.render (UserSettingsMsg >> dispatch) state.userSettingsState
                         Stats.render state.universe
                     ]
                 ]
