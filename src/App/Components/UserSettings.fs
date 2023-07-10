@@ -13,19 +13,30 @@ module UserSettings =
         | Light
         | Dark
 
+    [<Literal>]
+    let private lightStr = "light"
+
+    [<Literal>]
+    let private darkStr = "dark"
+
+    let toggleTheme (fromTheme: string) (toTheme: string) =
+        document.documentElement.classList.remove fromTheme
+        document.documentElement.classList.add toTheme
+        window.localStorage.setItem ("ui-theme", toTheme)
+
     type Msg = ToggleTheme
 
-    let init = { theme = Dark } |> State
+    let init =
+        let theme = window.localStorage.getItem "ui-theme"
+        { theme = if theme = lightStr then Dark else Light } |> State, Cmd.ofMsg ToggleTheme
 
     let update msg (State innerState) =
         match msg with
         | ToggleTheme when innerState.theme = Dark ->
-            document.documentElement.classList.remove "dark"
-            document.documentElement.classList.add "light"
+            toggleTheme darkStr lightStr
             State { innerState with theme = Light }, Cmd.none
         | ToggleTheme ->
-            document.documentElement.classList.remove "light"
-            document.documentElement.classList.add "dark"
+            toggleTheme lightStr darkStr
             State { innerState with theme = Dark }, Cmd.none
 
     let render (dispatch: Msg -> unit) (State innerState) =
