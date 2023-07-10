@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="Components\Universe.fs" />
     <Compile Include="Components\Stats.fs" />
+    <Compile Include="Components\UserSettings.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>
