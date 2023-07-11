@@ -26,12 +26,14 @@ type Msg =
     | UserSettingsMsg of UserSettings.Msg
 
 let init () =
+    let userSettingsState, userSettingsCmd = UserSettings.init
+
     {
         mode = Editing
         universe = defaultUniverse
-        userSettingsState = UserSettings.init
+        userSettingsState = userSettingsState
     },
-    Cmd.none
+    userSettingsCmd |> Cmd.map UserSettingsMsg
 
 let update (msg: Msg) (state: State) =
     match msg with
