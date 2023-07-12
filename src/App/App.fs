@@ -9,45 +9,30 @@ open GameOfLife.Model.Game
 
 open Browser
 
-type GameMode =
-    | Playing
-    | Editing
-
-type State = {
-    mode: GameMode
-    universe: Universe
-    userSettingsState: UserSettings.State
-}
+type State = { userSettingsState: UserSettings.State; universeState: Universe.Sate }
 
 type Msg =
-    | OnCellClicked of int * int
-    | ToggleGameMode
-    | Step
     | UserSettingsMsg of UserSettings.Msg
+    | UniverseMsg of Universe.Msg
 
 let init () =
     let userSettingsState, userSettingsCmd = UserSettings.init
+    let universeState, universeCmd = Universe.init ()
 
-    {
-        mode = Editing
-        universe = defaultUniverse
-        userSettingsState = userSettingsState
-    },
-    userSettingsCmd |> Cmd.map UserSettingsMsg
+    { userSettingsState = userSettingsState; universeState = universeState },
+    Cmd.batch [
+        userSettingsCmd |> Cmd.map UserSettingsMsg
+        universeCmd |> Cmd.map UniverseMsg
+    ]
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | OnCellClicked(x, y) when state.mode = Editing -> { state with universe = toggleCell state.universe x y }, Cmd.none
-    | OnCellClicked _ -> state, Cmd.none
-    | ToggleGameMode when state.mode = Editing -> { state with mode = Playing }, Cmd.ofMsg Step
-    | ToggleGameMode _ -> { state with mode = Editing }, Cmd.none
-    | Step when state.mode = Playing ->
-        { state with universe = step state.universe }, Cmd.OfAsync.perform (fun _ -> Async.Sleep 300) () (fun _ -> Step)
-    | Step -> state, Cmd.none
     | UserSettingsMsg subMsg ->
         let state', cmd = UserSettings.update subMsg state.userSettingsState
         { state with userSettingsState = state' }, cmd
-
+    | UniverseMsg subMsg ->
+        let state', cmd = Universe.update subMsg state.universeState
+        { state with universeState = state' }, cmd |> Cmd.map UniverseMsg
 
 let render (state: State) (dispatch: Msg -> unit) =
     Html.div [
@@ -58,10 +43,13 @@ let render (state: State) (dispatch: Msg -> unit) =
                     prop.classes [ "side-bar" ]
                     prop.children [
                         UserSettings.render (UserSettingsMsg >> dispatch) state.userSettingsState
-                        Stats.render state.universe
+                        state.universeState
+                        |> Universe.unwrapUniverse
+                        |> Option.map Stats.render
+                        |> Option.defaultWith (fun _ -> Html.none)
                     ]
                 ]
-                Universe.render (OnCellClicked >> dispatch) state.universe
+                Universe.render (UniverseMsg >> dispatch) state.universeState
             ]
         ]
         Html.div [
@@ -70,7 +58,7 @@ let render (state: State) (dispatch: Msg -> unit) =
                 Html.button [
                     prop.classes [ "btn"; "round" ]
                     prop.children [
-                        (if state.mode = Playing then
+                        (if Universe.isPlaying state.universeState then
                              Html.i [
                                  prop.classes [ "fa-solid"; "fa-stop" ]
                              ]
@@ -79,7 +67,7 @@ let render (state: State) (dispatch: Msg -> unit) =
                                  prop.classes [ "fa-solid"; "fa-play" ]
                              ])
                     ]
-                    prop.onClick (fun _ -> dispatch ToggleGameMode)
+                    prop.onClick (fun _ -> Universe.Msg.ToggleGameMode |> UniverseMsg |> dispatch)
                 ]
             ]
         ]
@@ -87,5 +75,6 @@ let render (state: State) (dispatch: Msg -> unit) =
 
 Program.mkProgram init update render
 |> Program.withReactSynchronous "elmish-app"
+|> Program.withSubscription (fun state -> Sub.map "universe" UniverseMsg (Universe.subscribe state.universeState))
 |> Program.withDebugger
 |> Program.run
