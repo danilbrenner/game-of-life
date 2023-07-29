@@ -9,6 +9,11 @@
     <ItemGroup>
         <Compile Include="Commons.fs" />
         <Compile Include="Game.fs" />
+        <Compile Include="User.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Fable.SimpleJson" Version="3.24.0" />
     </ItemGroup>
 
 </Project>
