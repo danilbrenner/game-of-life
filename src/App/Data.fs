@@ -25,9 +25,9 @@ module Data =
         window.localStorage.getItem (id.ToString()) |> Json.tryParseAs<Set<uint>>
         <?> Set.empty
 
-    let saveGame name cells =
+    let saveGame (name: string) cells =
         let newGameId = Guid.NewGuid()
-        let games = newGameId, name :: getSavedGames ()
+        let games = (newGameId, name) :: getSavedGames ()
         window.localStorage.setItem ("games-list", games |> Json.stringify)
         window.localStorage.setItem (newGameId.ToString(), cells |> Json.stringify)
         games
@@ -38,4 +38,4 @@ module Data =
 
         window.localStorage.setItem ("games-list", games)
         window.localStorage.removeItem <| id.ToString()
-        games
+        getSavedGames ()
