@@ -8,6 +8,8 @@
     <Compile Include="Components\Universe.fs" />
     <Compile Include="Components\Stats.fs" />
     <Compile Include="Components\UserSettings.fs" />
+    <Compile Include="Components\SavedGames.fs" />
+    <Compile Include="Data.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -16,6 +18,7 @@
     <PackageReference Update="FSharp.Core" Version="7.0.300" />
     <PackageReference Include="Fable.Elmish.Debugger" Version="4.0.0" />
     <PackageReference Include="Fable.Elmish.React" Version="4.0.0" />
+    <PackageReference Include="Fable.SimpleJson" Version="3.24.0" />
     <PackageReference Include="Feliz" Version="2.6.0" />
   </ItemGroup>
   <ItemGroup>
